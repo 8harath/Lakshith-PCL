@@ -4,6 +4,9 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
 import requests
 import os
+import base64
+from io import BytesIO
+from PIL import Image
 
 from config import Config
 from models import db, User, Listing, QAPost
@@ -25,11 +28,14 @@ try:
         import google.generativeai as genai
         genai.configure(api_key=app.config['GEMINI_API_KEY'])
         gemini_model = genai.GenerativeModel('gemini-pro')
+        gemini_vision_model = genai.GenerativeModel('gemini-1.5-flash')
     else:
         gemini_model = None
+        gemini_vision_model = None
 except Exception as e:
     print(f"Gemini API not configured: {e}")
     gemini_model = None
+    gemini_vision_model = None
 
 
 # ==================== Authentication Routes ====================
@@ -392,6 +398,94 @@ def get_symptoms():
     return jsonify({'symptoms': symptoms}), 200
 
 
+@app.route('/api/predict-disease-image', methods=['POST'])
+def predict_disease_from_image():
+    """Predict disease from uploaded image using Gemini Vision API"""
+    if not gemini_vision_model:
+        return jsonify({'error': 'Gemini Vision API not configured. Please add GEMINI_API_KEY to your environment variables.'}), 503
+
+    try:
+        data = request.get_json()
+
+        if 'image' not in data:
+            return jsonify({'error': 'Missing image data'}), 400
+
+        # Extract base64 image data
+        image_data = data['image']
+
+        # Remove data URL prefix if present
+        if ',' in image_data:
+            image_data = image_data.split(',')[1]
+
+        # Decode base64 image
+        image_bytes = base64.b64decode(image_data)
+        image = Image.open(BytesIO(image_bytes))
+
+        # Prepare prompt for Gemini
+        prompt = """You are an expert agricultural pathologist. Analyze this plant/crop image and identify any diseases or problems.
+
+Please provide your response in the following JSON format:
+{
+    "disease_detected": "Name of the disease or 'Healthy' if no disease detected",
+    "confidence": "High/Medium/Low",
+    "severity": "Very High/High/Medium/Low/None",
+    "affected_crops": "List of crops commonly affected by this disease",
+    "symptoms_visible": "List the symptoms you can see in the image",
+    "management": {
+        "cultural": "Cultural control methods",
+        "chemical": "Chemical control recommendations",
+        "organic": "Organic/biological control methods"
+    },
+    "preventive_measures": "General preventive measures",
+    "additional_notes": "Any other relevant information"
+}
+
+IMPORTANT:
+- Be specific and accurate in your diagnosis
+- If you're not certain, indicate lower confidence
+- Focus only on agricultural/plant diseases
+- If the image doesn't show a plant or crop, respond with an error message
+- Provide practical, actionable advice for Indian farming conditions"""
+
+        # Generate response using Gemini Vision
+        response = gemini_vision_model.generate_content([prompt, image])
+
+        # Parse the response
+        response_text = response.text
+
+        # Try to extract JSON from the response
+        import json
+        try:
+            # Remove markdown code blocks if present
+            if '```json' in response_text:
+                response_text = response_text.split('```json')[1].split('```')[0].strip()
+            elif '```' in response_text:
+                response_text = response_text.split('```')[1].split('```')[0].strip()
+
+            result = json.loads(response_text)
+            result['raw_response'] = response.text
+        except json.JSONDecodeError:
+            # If JSON parsing fails, return the raw response
+            result = {
+                'disease_detected': 'Analysis Complete',
+                'raw_response': response.text,
+                'note': 'Unable to parse structured response, showing raw analysis'
+            }
+
+        return jsonify({
+            'success': True,
+            'analysis': result,
+            'model': 'gemini-1.5-flash',
+            'disclaimer': 'This is an AI-powered analysis. For accurate diagnosis and treatment, please consult local agricultural experts or pathologists.'
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'error': f'Image analysis failed: {str(e)}',
+            'details': 'Please ensure the image is clear and shows the affected plant/crop clearly.'
+        }), 500
+
+
 # ==================== Q&A / Community Routes ====================
 
 @app.route('/api/qa-posts', methods=['GET'])
@@ -498,9 +592,9 @@ def get_weather():
 
 @app.route('/api/gemini-chat', methods=['POST'])
 def gemini_chat():
-    """Optional Gemini chat for agricultural Q&A"""
+    """Agricultural chatbot using Gemini API with custom prompts"""
     if not gemini_model:
-        return jsonify({'error': 'Gemini API not configured'}), 503
+        return jsonify({'error': 'Gemini API not configured. Please add GEMINI_API_KEY to your environment variables.'}), 503
 
     data = request.get_json()
 
@@ -508,9 +602,37 @@ def gemini_chat():
         return jsonify({'error': 'Missing prompt'}), 400
 
     try:
-        # Add context for agricultural domain
-        agricultural_context = """You are an agricultural expert assistant helping farmers in India.
-Provide practical, region-appropriate advice for Indian agricultural conditions."""
+        # Strict agricultural context to prevent misuse
+        agricultural_context = """You are an expert agricultural assistant specifically designed to help farmers and agricultural professionals in India.
+
+IMPORTANT GUIDELINES:
+1. ONLY answer questions related to:
+   - Crop cultivation and farming practices
+   - Plant diseases and pest management
+   - Soil management and fertilization
+   - Weather and climate for agriculture
+   - Crop marketing and pricing
+   - Agricultural equipment and technology
+   - Livestock and animal husbandry
+   - Organic farming and sustainable practices
+   - Government schemes for farmers
+   - Post-harvest management
+
+2. If the user asks about topics OUTSIDE agriculture:
+   - Politely decline and redirect them to agricultural topics
+   - Say: "I'm specifically designed to help with agricultural and farming questions. Please ask me about crops, farming practices, diseases, soil management, or other agriculture-related topics."
+
+3. Provide practical, actionable advice suitable for Indian farming conditions
+4. Use simple, clear language that farmers can understand
+5. Include specific recommendations when possible
+6. Consider regional variations in India (climate zones, soil types, etc.)
+
+7. For sensitive topics:
+   - Always recommend consulting local agricultural experts for critical decisions
+   - Mention government agricultural extension services when appropriate
+   - Avoid medical advice (human health) - redirect to healthcare professionals
+
+Your responses should be helpful, accurate, and focused on improving agricultural outcomes for Indian farmers."""
 
         full_prompt = f"{agricultural_context}\n\nUser question: {data['prompt']}"
 
@@ -518,7 +640,8 @@ Provide practical, region-appropriate advice for Indian agricultural conditions.
 
         return jsonify({
             'response': response.text,
-            'model': 'gemini-pro'
+            'model': 'gemini-pro',
+            'disclaimer': 'This is AI-generated advice. For critical decisions, please consult local agricultural experts or extension services.'
         }), 200
 
     except Exception as e:

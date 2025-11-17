@@ -13,6 +13,7 @@ import Recommendations from './pages/Recommendations';
 import DiseasePredictor from './pages/DiseasePredictor';
 import Community from './pages/Community';
 import CreatePost from './pages/CreatePost';
+import Chatbot from './pages/Chatbot';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/disease-predictor" element={<DiseasePredictor />} />
             <Route path="/community" element={<Community />} />
             <Route path="/create-post" element={<CreatePost />} />
+            <Route path="/chatbot" element={<Chatbot />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

@@ -1,8 +1,29 @@
-# Crop Marketplace & Recommendation System - MVP
+# 🌾 Crop Marketplace & AI Agricultural Assistant - MVP
 
-A comprehensive web application that combines a crop marketplace, AI-powered crop recommendations, and disease prediction system for farmers and buyers.
+A comprehensive web application that combines a crop marketplace, AI-powered crop recommendations, disease detection (symptom-based AND image-based), and an agricultural chatbot for farmers and buyers.
 
-## Features
+## 🚀 Quick Start
+
+```bash
+# Automated setup (Recommended)
+chmod +x setup.sh run.sh
+./setup.sh        # One-time setup
+./run.sh          # Start application
+
+# Windows users:
+setup.bat         # One-time setup
+run.bat           # Start application
+```
+
+Then open http://localhost:5173 in your browser!
+
+**📚 Documentation:**
+- **For Users**: See [README_USER_GUIDE.md](README_USER_GUIDE.md) - Complete user guide for laymen
+- **For Developers**: See [TECHNICAL_SETUP.md](TECHNICAL_SETUP.md) - Technical documentation
+
+---
+
+## ✨ Features
 
 ### 🛒 Marketplace
 - Browse and search crop listings
@@ -11,19 +32,35 @@ A comprehensive web application that combines a crop marketplace, AI-powered cro
 - Farmer listing management (create, edit, delete)
 
 ### 🌱 Crop Recommendation Engine
-- Rule-based recommendation system
+- AI-powered recommendation system
 - Personalized crop suggestions based on:
   - Soil type and pH
   - Temperature and rainfall
   - Humidity and irrigation availability
   - Seasonal conditions
-- Optional Gemini AI integration for enhanced insights
+- Gemini AI integration for enhanced insights
 
-### 🩺 Disease Predictor
-- Text-based symptom input
+### 🩺 Disease Detection (Dual Mode) 🆕
+
+#### **Method 1: Symptom-Based Detection**
+- Describe symptoms or select from checkboxes
 - Rule-based disease identification
 - Management recommendations (cultural, chemical, organic)
-- Common symptom selection for easy input
+- Covers 12 common crop diseases
+
+#### **Method 2: AI Image Analysis** 🆕
+- Upload plant/crop photos
+- Powered by Gemini Vision AI
+- Automated disease detection from images
+- Detailed treatment recommendations
+- Prevention tips and additional insights
+
+### 🤖 Agricultural Chatbot 🆕
+- AI-powered agricultural assistant
+- Ask any farming-related question
+- Instant intelligent responses
+- Topics: crops, diseases, soil, weather, government schemes
+- Context-aware and restricted to agricultural domain
 
 ### 💬 Community Q&A
 - Ask and answer agricultural questions
@@ -177,7 +214,8 @@ Lakshith-PCL/
 │   │   │   ├── CreateListing.jsx # Create new listing
 │   │   │   ├── MyListings.jsx   # Farmer's listings
 │   │   │   ├── Recommendations.jsx # Crop recommendations
-│   │   │   ├── DiseasePredictor.jsx # Disease prediction
+│   │   │   ├── DiseasePredictor.jsx # Disease prediction (dual mode)
+│   │   │   ├── Chatbot.jsx       # AI agricultural chatbot 🆕
 │   │   │   ├── Community.jsx    # Q&A forum
 │   │   │   └── CreatePost.jsx   # Create Q&A post
 │   │   ├── App.jsx              # Main app component
@@ -213,6 +251,7 @@ Lakshith-PCL/
 
 ### Disease Prediction
 - `POST /api/predict-disease` - Predict disease from symptoms
+- `POST /api/predict-disease-image` - Analyze disease from image (AI) 🆕
 - `GET /api/common-symptoms` - Get list of common symptoms
 
 ### Community
@@ -337,15 +376,19 @@ For Production (Future):
 
 ## Future Enhancements
 
-- [ ] Image-based disease detection using ML models
+- [x] Image-based disease detection using AI (Gemini Vision) ✅
+- [x] AI-powered agricultural chatbot ✅
 - [ ] Payment integration for transactions
 - [ ] Delivery and logistics management
 - [ ] Admin dashboard for monitoring
 - [ ] Mobile application (React Native)
 - [ ] Real-time chat between farmers and buyers
-- [ ] Multi-language support
+- [ ] Multi-language support (Hindi, regional languages)
 - [ ] Blockchain-based certification
 - [ ] Market price prediction using ML
+- [ ] Interactive map for farmer locations
+- [ ] Push notifications for price alerts
+- [ ] Offline mode support
 
 ## Support
 
