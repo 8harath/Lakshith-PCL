@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(setup.bat)",
+      "Bash(node --version)",
+      "Bash(npm --version:*)",
+      "Bash(python -m venv:*)",
+      "Bash(. venv/Scripts/activate)",
+      "Bash(pip install:*)",
+      "Bash(if [ ! -f .env ])",
+      "Bash(then cp .env.example .env)",
+      "Bash(.env)",
+      "Bash(fi)",
+      "Bash(cat:*)",
+      "Bash(python seed_data.py:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(python app.py:*)",
+      "Bash(python -c:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

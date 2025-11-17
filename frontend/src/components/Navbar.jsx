@@ -19,26 +19,51 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-content">
         <Link to="/" className="navbar-brand">
-          🌾 Crop Marketplace
+          AgriMarket
         </Link>
         <ul className="navbar-nav">
-          <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
-          <li><Link to="/recommendations" className="nav-link">Recommendations</Link></li>
-          <li><Link to="/disease-predictor" className="nav-link">Disease Help</Link></li>
-          <li><Link to="/chatbot" className="nav-link">AI Chatbot</Link></li>
-          <li><Link to="/community" className="nav-link">Community</Link></li>
+          {/* Common Links for All */}
+          {isAuthenticated && (
+            <li><Link to="/" className="nav-link">Dashboard</Link></li>
+          )}
 
+          {/* Farmer-Specific Links */}
+          {isAuthenticated && isFarmer ? (
+            <>
+              <li><Link to="/my-listings" className="nav-link">My Listings</Link></li>
+              <li><Link to="/create-listing" className="nav-link">Add Listing</Link></li>
+              <li><Link to="/recommendations" className="nav-link">Crop Advice</Link></li>
+              <li><Link to="/disease-predictor" className="nav-link">Disease Help</Link></li>
+            </>
+          ) : isAuthenticated ? (
+            /* Client-Specific Links */
+            <>
+              <li><Link to="/marketplace" className="nav-link">Browse Crops</Link></li>
+              <li><Link to="/recommendations" className="nav-link">Crop Insights</Link></li>
+              <li><Link to="/disease-predictor" className="nav-link">Plant Health</Link></li>
+            </>
+          ) : (
+            /* Guest Links */
+            <>
+              <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
+              <li><Link to="/recommendations" className="nav-link">Recommendations</Link></li>
+            </>
+          )}
+
+          {/* Common Links */}
+          {isAuthenticated && (
+            <>
+              <li><Link to="/chatbot" className="nav-link">AI Assistant</Link></li>
+              <li><Link to="/community" className="nav-link">Community</Link></li>
+            </>
+          )}
+
+          {/* Auth Links */}
           {isAuthenticated ? (
             <>
-              {isFarmer && (
-                <>
-                  <li><Link to="/create-listing" className="nav-link">Add Listing</Link></li>
-                  <li><Link to="/my-listings" className="nav-link">My Listings</Link></li>
-                </>
-              )}
               <li>
-                <span className="nav-link" style={{cursor: 'default'}}>
-                  👤 {user.display_name || user.username}
+                <span className="nav-link" style={{cursor: 'default', fontWeight: 500}}>
+                  {user.display_name || user.username}
                 </span>
               </li>
               <li>

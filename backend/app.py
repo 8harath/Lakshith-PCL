@@ -27,13 +27,15 @@ try:
     if app.config['GEMINI_ENABLED']:
         import google.generativeai as genai
         genai.configure(api_key=app.config['GEMINI_API_KEY'])
-        gemini_model = genai.GenerativeModel('gemini-pro')
+        # Updated model names for current Gemini API
+        gemini_model = genai.GenerativeModel('gemini-1.5-flash')
         gemini_vision_model = genai.GenerativeModel('gemini-1.5-flash')
+        print("✅ Gemini API configured successfully with gemini-1.5-flash")
     else:
         gemini_model = None
         gemini_vision_model = None
 except Exception as e:
-    print(f"Gemini API not configured: {e}")
+    print(f"❌ Gemini API not configured: {e}")
     gemini_model = None
     gemini_vision_model = None
 

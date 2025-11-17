@@ -41,7 +41,7 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const response = await geminiChat(input);
+      const response = await geminiChat({ prompt: input });
       const assistantMessage = {
         role: 'assistant',
         content: response.data.response

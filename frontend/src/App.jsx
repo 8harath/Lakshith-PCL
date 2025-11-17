@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider, useAuth } from './AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -14,6 +14,24 @@ import DiseasePredictor from './pages/DiseasePredictor';
 import Community from './pages/Community';
 import CreatePost from './pages/CreatePost';
 import Chatbot from './pages/Chatbot';
+import FarmerDashboard from './pages/FarmerDashboard';
+import ClientDashboard from './pages/ClientDashboard';
+
+// Dashboard Router - redirects to appropriate dashboard based on role
+const DashboardRouter = () => {
+  const { isAuthenticated, isFarmer, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Home />;
+  }
+
+  // Redirect to role-specific dashboard
+  return isFarmer ? <FarmerDashboard /> : <ClientDashboard />;
+};
 
 function App() {
   return (
@@ -22,7 +40,7 @@ function App() {
         <div className="App">
           <Navbar />
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<DashboardRouter />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/marketplace" element={<Marketplace />} />
