@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 
 def seed_database():
     with app.app_context():
+        # Create tables if they don't exist
+        print("Creating database tables...")
+        db.create_all()
+
         # Clear existing data
         print("Clearing existing data...")
         QAPost.query.delete()
