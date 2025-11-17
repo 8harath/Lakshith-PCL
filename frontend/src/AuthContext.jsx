@@ -1,53 +1,32 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getCurrentUser, login as apiLogin, logout as apiLogout, register as apiRegister } from './api';
+import React, { createContext, useState, useContext } from 'react';
 
 const AuthContext = createContext(null);
 
+// Demo user for MVP showcase
+const DEMO_USER = {
+  id: 'demo',
+  username: 'demo_user',
+  role: 'farmer',
+  display_name: 'Demo User',
+  location: 'Demo Location',
+  contact_info: 'Contact via platform'
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const response = await getCurrentUser();
-      setUser(response.data.user);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (credentials) => {
-    const response = await apiLogin(credentials);
-    setUser(response.data.user);
-    return response;
-  };
-
-  const register = async (userData) => {
-    const response = await apiRegister(userData);
-    setUser(response.data.user);
-    return response;
-  };
-
-  const logout = async () => {
-    await apiLogout();
-    setUser(null);
-  };
+  // In demo mode, user is always logged in as demo user
+  const [user] = useState(DEMO_USER);
+  const [loading] = useState(false);
 
   const value = {
     user,
-    login,
-    register,
-    logout,
     loading,
-    isAuthenticated: !!user,
-    isFarmer: user?.role === 'farmer',
-    isClient: user?.role === 'client' || user?.role === 'pharma'
+    isAuthenticated: true, // Always authenticated in demo mode
+    isFarmer: true, // Demo user is a farmer
+    isClient: false,
+    // These functions are kept for compatibility but don't do anything
+    login: async () => ({ data: { user: DEMO_USER } }),
+    register: async () => ({ data: { user: DEMO_USER } }),
+    logout: async () => {}
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
