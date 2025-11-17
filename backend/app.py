@@ -13,7 +13,9 @@ from disease_predictor import predict_disease, get_common_symptoms
 app = Flask(__name__)
 app.config.from_object(Config)
 
-CORS(app, supports_credentials=True, origins=['http://localhost:3000', 'http://localhost:5173'])
+# CORS configuration - supports both local development and production
+allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(',')
+CORS(app, supports_credentials=True, origins=allowed_origins)
 bcrypt = Bcrypt(app)
 db.init_app(app)
 
