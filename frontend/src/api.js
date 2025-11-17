@@ -31,6 +31,7 @@ export const getCropRecommendations = (fieldData) => api.post('/recommend', fiel
 // Disease Prediction
 export const predictDisease = (symptoms) => api.post('/predict-disease', { symptoms });
 export const getCommonSymptoms = () => api.get('/common-symptoms');
+export const predictDiseaseFromImage = (imageData) => api.post('/predict-disease-image', { image: imageData });
 
 // Q&A
 export const getQAPosts = () => api.get('/qa-posts');

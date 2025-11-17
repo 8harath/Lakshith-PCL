@@ -25,6 +25,7 @@ const Navbar = () => {
           <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
           <li><Link to="/recommendations" className="nav-link">Recommendations</Link></li>
           <li><Link to="/disease-predictor" className="nav-link">Disease Help</Link></li>
+          <li><Link to="/chatbot" className="nav-link">AI Chatbot</Link></li>
           <li><Link to="/community" className="nav-link">Community</Link></li>
 
           {isAuthenticated ? (
